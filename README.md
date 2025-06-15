@@ -62,37 +62,6 @@ Preview                    |   Home screen             |  Product Detail Screen 
           └──product_controller.dart
 ```
 
-<br/>
-
-## Dependencies
-Package Name        |
-:-------------------------|
-|[GetX](https://pub.dev/packages/get) 
-|[bottom_navy_bar](https://pub.dev/packages/bottom_navy_bar) 
-|[smooth_page_indicator](https://pub.dev/packages/smooth_page_indicator)
-|[flutter_rating_bar](https://pub.dev/packages/flutter_rating_bar)
-|[font_awesome_flutter](https://pub.dev/packages/font_awesome_flutter)
-|[animations](https://pub.dev/packages/animations)
-|[flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons)
-
-<br/>
-
-## Created & Maintained By
-
-[SinaSys](https://github.com/SinaSys) 
-
-
-## Contributors
-• [mufarrah](https://github.com/mufarrah)
-<br/>
-<br/>
-
-##  Other flutter projects
- Project Name        |Stars        
-:-------------------------|-------------------------
-[Go rest app](https://github.com/SinaSys/flutter_go_rest_app)|![GitHub stars](https://img.shields.io/github/stars/SinaSys/flutter_go_rest_app?style=social)
-[Japanese restaurant app](https://github.com/SinaSys/flutter_japanese_restaurant_app)| ![GitHub stars](https://img.shields.io/github/stars/SinaSys/flutter_japanese_restaurant_app?style=social)
-|[Office furniture store app](https://github.com/SinaSys/flutter_office_furniture_store_app) |![GitHub stars](https://img.shields.io/github/stars/SinaSys/flutter_office_furniture_store_app?style=social)
 
 
 
