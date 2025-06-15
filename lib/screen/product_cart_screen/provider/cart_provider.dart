@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import '../../../models/coupon.dart';
 import '../../login_screen/provider/user_provider.dart';
@@ -61,10 +62,97 @@ class CartProvider extends ChangeNotifier {
   double getGrandTotal() {
     return getCartSubTotal() - couponCodeDiscount;
   }
-
-  //TODO: should complete checkCoupon
-
-  //TODO: should complete getCouponDiscountAmount
+  //checkCoupon
+  checkCoupon() async {
+    try{
+      if(countryController.text.isEmpty) {
+        SnackBarHelper.showErrorSnackBar('Enter a coupon code');
+        return;
+      }
+      List<String> productIds = myCartItems.map((cartItem) => cartItem.productId).toList();
+      Map<String, dynamic> couponData = {
+        "couponCode": countryController.text,
+        "purchaseAmount": getCartSubTotal(),
+        "productIds": productIds
+      };
+      final response = await service.addItem(endpointUrl: 'couponCodes/check-coupon', itemData: couponData);
+      if(response.isOk) {
+        final ApiResponse<Coupon> apiResponse = 
+        ApiResponse<Coupon>.fromJson(response.body, (json) => Coupon.fromJson(json as Map<String, dynamic>));
+        if(apiResponse.success == true) {
+          Coupon? coupon = apiResponse.data;
+          if(coupon != null){
+            couponApplied = coupon;
+            couponCodeDiscount = getCouponDiscountAmount(coupon);
+          }
+          SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+          log('Coupon is valid');
+        
+        }
+        else {
+          SnackBarHelper.showErrorSnackBar('Failed to validate Coupon: ${apiResponse.message}');
+        }
+      }
+      else {
+        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}');
+      }
+      notifyListeners();
+    }
+    catch(e){
+      print(e);
+      SnackBarHelper.showErrorSnackBar('An error occurred: $e');
+      rethrow;
+    }
+  }
+  
+  //getCouponDiscountAmount
+  double getCouponDiscountAmount(Coupon coupon) {
+    double discountAmount = 0;
+    String discountType = coupon.discountType ?? 'fixed';
+    if(discountType == 'fixed') {
+      discountAmount = coupon.discountAmount ?? 0;
+      return discountAmount;
+    }
+    else {
+      double discountPercentage = coupon.discountAmount ?? 0;
+      double amountAfterDiscountPercentage = getCartSubTotal() * (discountPercentage/100);
+      return amountAfterDiscountPercentage;
+    }
+  }
+  
+  //addOrder
+  addOrder(BuildContext context) async {
+    try{
+      Map<String, dynamic> order = {
+        "userId": _userProvider.getLoginUsr()?.sId ?? '',
+        "orderStatus": "pending",
+        // "items": cartItemToOrderItem(myCartItems),
+        "totalPrice": getCartSubTotal(),
+        "shippingAddress": {
+          "phone": phoneController.text,
+          "street": streetController.text,
+          "city": cityController.text,
+          "state": stateController.text,
+          "postalCode": postalCodeController.text,
+          "country": countryController.text,
+        },
+        "paymentMethod": selectedPaymentOption,
+        "couponCode": couponApplied?.sId,
+        "orderTotal": {"subtotal": getCartSubTotal(), "discount": couponCodeDiscount, "total": getGrandTotal()},
+      };
+      final response = await service.addItem(endpointUrl: 'orders', itemData: order);
+      if(response.isOk) {
+        ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
+        if(apiResponse.success == true) {
+          SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+        }
+      }
+    }
+    catch(e) {
+      print(e);
+    }
+  }
+ 
 
 
   //TODO: should complete submitOrder

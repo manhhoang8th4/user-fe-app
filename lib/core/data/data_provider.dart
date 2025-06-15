@@ -219,7 +219,9 @@ class DataProvider extends ChangeNotifier {
       }
     } catch (e) {
       if (showSnack) SnackBarHelper.showErrorSnackBar(e.toString());
+      rethrow;
     }
+    return _filteredPosters;
   }
 
   //getAllOrderByUser
