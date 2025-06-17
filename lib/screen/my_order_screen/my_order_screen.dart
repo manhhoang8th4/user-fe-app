@@ -1,3 +1,5 @@
+import 'package:e_commerce_flutter/models/user.dart';
+
 import '../../core/data/data_provider.dart';
 import '../tracking_screen/tracking_screen.dart';
 import '../../utility/app_color.dart';
@@ -14,10 +16,10 @@ class MyOrderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //TODO: should complete call getAllOrderByUser
+    context.dataProvider.getAllOrderByUser(context.userProvider.getLoginUsr());
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: const Text(  
           "My Orders",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColor.darkOrange),
         ),

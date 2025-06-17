@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:e_commerce_flutter/utility/utility_extention.dart';
+
 import '../../../models/coupon.dart';
 import '../../login_screen/provider/user_provider.dart';
 import '../../../services/http_services.dart';
@@ -126,7 +128,7 @@ class CartProvider extends ChangeNotifier {
       Map<String, dynamic> order = {
         "userId": _userProvider.getLoginUsr()?.sId ?? '',
         "orderStatus": "pending",
-        // "items": cartItemToOrderItem(myCartItems),
+        "items": cartItemToOrderItem(myCartItems),
         "totalPrice": getCartSubTotal(),
         "shippingAddress": {
           "phone": phoneController.text,
@@ -145,22 +147,51 @@ class CartProvider extends ChangeNotifier {
         ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
         if(apiResponse.success == true) {
           SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+          log('Order added');
+          clearCouponDiscount();
+          clearCartItems();
+          Navigator.pop(context);
         }
+        else {
+          SnackBarHelper.showErrorSnackBar('Failed to add Order: ${apiResponse.message}');
+        }
+        
+      }
+      else {
+        SnackBarHelper.showErrorSnackBar('Error ${response.body?['message'] ?? response.statusText}');
       }
     }
     catch(e) {
       print(e);
+      SnackBarHelper.showErrorSnackBar('An error occurred: $e');
+      rethrow;
     }
   }
- 
+  
+  //cartItemToOrderItem
+  List<Map<String, dynamic>> cartItemToOrderItem(List<CartModel> cartItems) {
+    return cartItems.map((cartItem){
+      return {
+        "productId": cartItem.productId,
+        "productName": cartItem.productName,
+        "quantity": cartItem.quantity,
+        "price": cartItem.variants.safeElementAt(0)?.price ?? 0,
+        "variant": cartItem.variants.safeElementAt(0)?.color ?? 0,
+      };
+    }).toList();
+  }
 
-
-  //TODO: should complete submitOrder
-
-  //TODO: should complete addOrder
-
-  //TODO: should complete cartItemToOrderItem
-
+  //submitOrder
+  submitOrder(BuildContext context)  async{
+    if(selectedPaymentOption == 'cod') {
+      addOrder(context);
+    }
+    else {
+      await stripePayment(operation: () {
+        addOrder(context);
+      });
+    }
+  }
 
   clearCouponDiscount() {
     couponApplied = null;
@@ -190,7 +221,7 @@ class CartProvider extends ChangeNotifier {
           "postal_code": postalCodeController.text,
           "country": "US"
         },
-        "amount":  100, //TODO: should complete amount grand total
+        "amount":  getGrandTotal() * 100, 
         "currency": "usd",
         "description": "Your transaction description here"
       };
@@ -268,7 +299,7 @@ class CartProvider extends ChangeNotifier {
       if (razorpayKey != null && razorpayKey != '') {
         var options = {
           'key': razorpayKey,
-          'amount': 100, //TODO: should complete amount grand total
+          'amount': getGrandTotal() * 100, 
           'name': "user",
           "currency": 'INR',
           'description': 'Your transaction description',

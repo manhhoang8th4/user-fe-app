@@ -164,7 +164,7 @@ void showCustomBottomSheet(BuildContext context) {
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
                           Text('Total Offer Applied  : \$${cartProvider.couponCodeDiscount}',
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-                         Text('Grand Total            : \$${context.cartProvider.getGrandTotal()}', //TODO: should complete to GrandTotal
+                         Text('Grand Total            : \$${context.cartProvider.getGrandTotal()}', 
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
                         ],
                       );
@@ -186,7 +186,7 @@ void showCustomBottomSheet(BuildContext context) {
                           // Check if the form is valid
                           if (context.cartProvider.buyNowFormKey.currentState!.validate()) {
                             context.cartProvider.buyNowFormKey.currentState!.save();
-                            //TODO: should complete call submitOrder
+                            context.cartProvider.submitOrder(context);
                             return;
                           }
                         });
